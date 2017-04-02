@@ -1,5 +1,6 @@
 package com.cyris.recyclerview;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutCompat;
@@ -73,6 +74,10 @@ public class MainActivity extends AppCompatActivity implements StudentAdapter.on
 
         Student student=data.get(position);
         Toast.makeText(this, "Item clicked is :"+student.firstName+"-"+student.lastName, Toast.LENGTH_SHORT).show();
+
+        Intent i=new Intent();
+        i.setClass(this, DetailActivity.class);
+        startActivity(i);
 
     }
 
