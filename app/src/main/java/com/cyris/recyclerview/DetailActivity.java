@@ -3,24 +3,47 @@ package com.cyris.recyclerview;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
+import android.support.design.*;
+import android.support.design.BuildConfig;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.NetworkImageView;
 import com.bumptech.glide.Glide;
+
+import java.util.Random;
+
+import static android.R.attr.bitmap;
 
 public class DetailActivity extends AppCompatActivity {
 
     CollapsingToolbarLayout collapsingToolbar;
+    int imageList[]={R.drawable.john, R.drawable.miwallpaper, R.drawable.rocky, R.drawable.whitehousedown};
+    Random crazy;
+    int randomInt;
+    private ImageLoader imageLoader;
+    NetworkImageView networkImageView;
+    String urlList[]={"http://image.tmdb.org/t/p/w500/////x4cycTgAtBIy4TP0DBD2RhtKpol.jpg", "http://image.tmdb.org/t/p/w500//////w1WqcS6hT0PUWC3adG37NSUOGX5.jpg"
+    , "http://image.tmdb.org/t/p/w500//////vdP8OadGAAIlfI1Ri0Y73Unphl7.jpg", "http://image.tmdb.org/t/p/w500//////xDEOxA01480uLTWuvQCw61VmDBt.jpg"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,19 +60,49 @@ public class DetailActivity extends AppCompatActivity {
                 (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         collapsingToolbar.setTitle("Collapsing Toolbar");
 
-        final ImageView imageView = (ImageView) findViewById(R.id.backdrop);
-        Glide.with(this).load(R.drawable.john).centerCrop().into(imageView);
+        crazy=new Random();
+        randomInt=crazy.nextInt(4);
+
+        networkImageView = (NetworkImageView) findViewById(R.id.backdrop);
+        Random crazy=new Random();
+
+        String imageurl=urlList[crazy.nextInt(4)];
+
+        imageLoader = CustomVolleyRequest.getInstance(this)
+                .getImageLoader();
+        imageLoader.get(imageurl, ImageLoader.getImageListener(networkImageView,
+                R.drawable.whitehousedown, android.R.drawable
+                        .ic_dialog_alert));
+        networkImageView.setImageUrl(imageurl, imageLoader);
+
 
         //working for palette
-        paintTextBackground();
+        imageLoader.get(imageurl, new ImageLoader.ImageListener() {
+
+            public void onErrorResponse(VolleyError arg0) {
+                networkImageView.setImageResource(R.drawable.error_image); // set an error image if the download fails
+                Toast.makeText(getApplicationContext(), "Cannot fetch movie poster", Toast.LENGTH_SHORT).show();
+            }
+
+            public void onResponse(ImageLoader.ImageContainer response, boolean arg1) {
+                if (response.getBitmap() != null) {
+                    networkImageView.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), android.R.anim.fade_in));
+                    networkImageView.setImageBitmap(response.getBitmap());
+                    Toast.makeText(getApplicationContext(), "Image Fetched", Toast.LENGTH_SHORT).show();
+                    changeStatusAndActionBarColorUsingPalette();
+                } else
+                    networkImageView.setImageResource(R.drawable.movie_icon); // set the loading image while the download is in progress
+            }
+        });
+
+
 
     }
 
 
-    private void paintTextBackground() {
+    private void changeStatusAndActionBarColorUsingPalette() {
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.john);
-
+        Bitmap bitmap = ((BitmapDrawable)networkImageView.getDrawable()).getBitmap();
         Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
             @Override
             public void onGenerated(Palette palette) {
@@ -66,7 +119,7 @@ public class DetailActivity extends AppCompatActivity {
                     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
                     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
                     int darkerColorChosen=getDarkerColor(chosenColor, 0.8f);
-                    window.setStatusBarColor(darkerColorChosen);
+                   // window.setStatusBarColor(darkerColorChosen);
                 }
 
             }

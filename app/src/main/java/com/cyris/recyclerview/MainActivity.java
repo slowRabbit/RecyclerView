@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements StudentAdapter.on
     public void onItemClick(int position) {
 
         Student student=data.get(position);
-        Toast.makeText(this, "Item clicked is :"+student.firstName+"-"+student.lastName, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Item clicked is :"+student.firstName+"-"+student.lastName, Toast.LENGTH_SHORT).show();
 
         Intent i=new Intent();
         i.setClass(this, DetailActivity.class);
