@@ -1,5 +1,6 @@
 package com.cyris.recyclerview;
 
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -9,8 +10,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.design.*;
 import android.support.design.BuildConfig;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.graphics.Palette;
@@ -41,6 +44,7 @@ public class DetailActivity extends AppCompatActivity {
     int randomInt;
     private ImageLoader imageLoader;
     NetworkImageView networkImageView;
+    int chosenColor;
     String urlList[]={"http://image.tmdb.org/t/p/w500/////x4cycTgAtBIy4TP0DBD2RhtKpol.jpg", "http://image.tmdb.org/t/p/w500//////w1WqcS6hT0PUWC3adG37NSUOGX5.jpg"
     , "http://image.tmdb.org/t/p/w500//////vdP8OadGAAIlfI1Ri0Y73Unphl7.jpg", "http://image.tmdb.org/t/p/w500//////xDEOxA01480uLTWuvQCw61VmDBt.jpg"
     };
@@ -53,12 +57,19 @@ public class DetailActivity extends AppCompatActivity {
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        //getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
+        final Drawable upArrow = getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp);
+        getSupportActionBar().setHomeAsUpIndicator(upArrow);
+
+        chosenColor=R.color.colorPrimary;
         collapsingToolbar =
                 (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        collapsingToolbar.setTitle("Collapsing Toolbar");
+        collapsingToolbar.setTitle("Detail View");
+        collapsingToolbar.setCollapsedTitleTextColor(Color.WHITE);
+        collapsingToolbar.setExpandedTitleTextColor(ColorStateList.valueOf(Color.WHITE));
+
+       // collapsingToolbar.setBackgroundColor(R.color.transparentBlack);
 
         crazy=new Random();
         randomInt=crazy.nextInt(4);
@@ -88,7 +99,6 @@ public class DetailActivity extends AppCompatActivity {
                 if (response.getBitmap() != null) {
                     networkImageView.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), android.R.anim.fade_in));
                     networkImageView.setImageBitmap(response.getBitmap());
-                    Toast.makeText(getApplicationContext(), "Image Fetched", Toast.LENGTH_SHORT).show();
                     changeStatusAndActionBarColorUsingPalette();
                 } else
                     networkImageView.setImageResource(R.drawable.movie_icon); // set the loading image while the download is in progress
@@ -109,7 +119,7 @@ public class DetailActivity extends AppCompatActivity {
 
                 //work with the palette here
                 int defaultValue = 0x000000;
-                int chosenColor = palette.getDarkMutedColor(defaultValue);
+                chosenColor = palette.getDarkMutedColor(defaultValue);
                 collapsingToolbar.setContentScrimColor(chosenColor);
 
                 //changing the status bar color
@@ -119,7 +129,7 @@ public class DetailActivity extends AppCompatActivity {
                     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
                     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
                     int darkerColorChosen=getDarkerColor(chosenColor, 0.8f);
-                   // window.setStatusBarColor(darkerColorChosen);
+                    window.setStatusBarColor(darkerColorChosen);
                 }
 
             }
